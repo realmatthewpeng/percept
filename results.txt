@@ -1,0 +1,5 @@
+prima75scoreboard
+    -- implant = p2p.implants.PRIMA75(z=0)
+    -- model = p2p.models.ScoreboardModel(xrange=(-2, 2), yrange=(-2, 2), xystep=0.15, rho=20)
+    -- basic cnn classifier (MNIST test accuracy 99.17)
+    -- phosphene accuracy 98.94
