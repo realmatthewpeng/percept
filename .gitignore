@@ -4,4 +4,4 @@ datasets/
 debug.log
 Out
 __pycache__
-**/axons.pickle
+axons.pickle

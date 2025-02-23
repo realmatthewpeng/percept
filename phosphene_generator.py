@@ -1,5 +1,6 @@
 import io
 import logging
+import os
 import time
 
 import numpy as np
@@ -10,6 +11,9 @@ from PIL import Image
 logging.getLogger("PIL.PngImagePlugin").setLevel(logging.CRITICAL + 1)
 
 def generate_percept(train_images: list, train_labels: list, test_images: list, test_labels: list, implant: p2p.implants.ProsthesisSystem, model: p2p.models.Model):
+
+    if not os.path.exists("Out/"):
+        os.makedirs("Out/")
 
     model.build()
 
