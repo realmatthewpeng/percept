@@ -48,6 +48,8 @@ def get_implant(cfg):
 def get_dataset(cfg):
     if cfg['dataset'] == 'MNIST':
         return get_MNIST_dataset()
+    elif cfg['dataset'] == 'Fashion':
+        return get_Fashion_dataset()
     else:
         raise NotImplementedError
     
@@ -65,6 +67,33 @@ def get_MNIST_dataset():
     logging.debug(f"total train images: {len(train_images)}")
 
     test_df = pd.read_parquet("datasets/MNIST/test.parquet")
+    test_images = []
+    test_labels = []
+
+    for i in range(test_df.shape[0]):
+        if i % 1000 == 0: logging.debug(f"creating test image {i}")
+        image = Image.open(io.BytesIO(test_df["image"].iloc[i]['bytes']))
+        test_labels.append(test_df["label"].iloc[i])
+        img_array = np.array(image)
+        test_images.append(img_array)
+    logging.debug(f"total test images: {len(test_images)}")
+
+    return train_images, train_labels, test_images, test_labels
+
+def get_Fashion_dataset():
+    train_df = pd.read_parquet("datasets/FashionMNIST/train.parquet")
+    train_images = []
+    train_labels = []
+
+    for i in range(train_df.shape[0]):
+        if i % 1000 == 0: logging.debug(f"creating train image {i}")
+        image = Image.open(io.BytesIO(train_df["image"].iloc[i]['bytes']))
+        train_labels.append(train_df["label"].iloc[i])
+        img_array = np.array(image)
+        train_images.append(img_array)
+    logging.debug(f"total train images: {len(train_images)}")
+
+    test_df = pd.read_parquet("datasets/FashionMNIST/test.parquet")
     test_images = []
     test_labels = []
 
