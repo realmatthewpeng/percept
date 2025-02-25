@@ -10,3 +10,10 @@ prima75axon
     -- phosphene gen time: ~ 1 hr
     -- basic cnn classifier (MNIST test accuracy 99.17)
     -- phosphene accuracy 98.23
+
+prima75axon2
+    -- implant = p2p.implants.PRIMA75(z=0)
+    -- model = p2p.models.AxonMapModel(xrange=(-2, 2), yrange=(-2, 2), xystep=0.15, rho=20, axlambda=400)
+    -- phosphene gen time: ~ 1 hr 20 min
+    -- basic cnn classifier (MNIST test accuracy 99.17)
+    -- phosphene accuracy 97.44
