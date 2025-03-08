@@ -1,21 +1,34 @@
-prima7scoreboard
+prima75scoreboard
     -- implant = p2p.implants.PRIMA75(z=0)
     -- model = p2p.models.ScoreboardModel(xrange=(-2, 2), yrange=(-2, 2), xystep=0.15, rho=20)
     -- basic cnn classifier (MNIST test accuracy 99.17)
     -- phosphene accuracy 98.94
 
-prima7scoreboard2
+prima75scoreboard2
     -- implant = p2p.implants.PRIMA75(z=0)
     -- model = p2p.models.ScoreboardModel(xrange=(-2, 2), yrange=(-2, 2), xystep=0.15, rho=20)
     -- basic cnn classifier (FashionMNIST test accuracy 89.83)
     -- phosphene accuracy 89.26
 
-prima7scoreboard3
+prima75scoreboard3
     -- implant = p2p.implants.PRIMA75(z=0)
     -- model = p2p.models.ScoreboardModel(xrange=(-2, 2), yrange=(-2, 2), xystep=0.15, rho=75)
     -- phosphene gen time: ~ 15 min
     -- basic cnn classifier (FashionMNIST test accuracy 89.83)
     -- phosphene accuracy 83.58
+
+prima75scoreboard4
+    -- implant = p2p.implants.PRIMA75(z=0)
+    -- model = p2p.models.ScoreboardModel(xrange=(-2, 2), yrange=(-2, 2), xystep=0.15, rho=75)
+    -- basic cnn classifier (MNIST test accuracy 99.17)
+    -- phosphene accuracy 98.17
+
+prima75scoreboard5
+    -- implant = p2p.implants.PRIMA75(z=0)
+    -- model = p2p.models.ScoreboardModel(xrange=(-2, 2), yrange=(-2, 2), xystep=0.15, rho=130)
+    -- phosphene gen time: ~ 15 min
+    -- basic cnn classifier (MNIST test accuracy 99.17)
+    -- phosphene accuracy 11.35 (predicts only 1)
 
 prima75axon
     -- implant = p2p.implants.PRIMA75(z=0)
