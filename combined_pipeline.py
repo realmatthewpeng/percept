@@ -7,6 +7,13 @@ import utils
 
 
 def main(args):
+    if args.evaluate is not None:
+        classifier_path, dataset_X, dataset_Y = args.evaluate
+        classifier = utils.get_pretrained_classifier(classifier_path)
+        _, _, test_images, test_labels = utils.get_processed_dataset(test_only=True, test_X_path=dataset_X, test_Y_path=dataset_Y)
+        ceval.eval_model(classifier, test_images, test_labels)
+        return
+
     cfg = utils.load_config(args.config)
 
     model = utils.get_percept_model(cfg['phosphene_generator'])
@@ -52,6 +59,8 @@ if __name__ == "__main__":
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-c", "--config", type=str, default=None,
                        help="config file (yaml) with the pipeline configurations: e.g. '_config.yaml' ")
+    group.add_argument("-e", "--evaluate", nargs=3, metavar=('classifier', 'dataX', 'dataY'), default=None,
+                       help="evaluation only mode for a pretrained classifier on a processed dataset. Provide the path to the classifier, dataX, and dataY files.")
 
     args = parser.parse_args()
     main(args)

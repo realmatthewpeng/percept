@@ -150,7 +150,7 @@ def get_basic_cnn_classifier():
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-def get_processed_dataset(test_only = False):
+def get_processed_dataset(test_only = False, test_X_path = 'Out/testdata.npz', test_Y_path = 'Out/testlabels.npz'):
     trainX = []
     trainY = []
     if (not test_only):
@@ -163,8 +163,8 @@ def get_processed_dataset(test_only = False):
         # one hot encode target values
         trainY = to_categorical(trainY)
 
-    X = np.load('Out/testdata.npz')
-    Y = np.load('Out/testlabels.npz')
+    X = np.load(test_X_path)
+    Y = np.load(test_Y_path)
     testX = X['data']
     testY = Y['data']
     # reshape dataset to have a single channel

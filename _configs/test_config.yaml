@@ -13,7 +13,6 @@ phosphene_generator:
 classifier_evaluator:
   classifier: basic_cnn
 
-pretrained_classifier: Out/prima75scoreboard4/final_model.h5
+pretrained_classifier: Out/initial_cnn_model_mnist.h5
 image_preprocessor:
   doRGBtoGray: True
-  doRotate: 90
