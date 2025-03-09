@@ -42,6 +42,26 @@ def get_implant(cfg):
             return p2p.implants.PRIMA75(**cfg['implant_args'])
         else:
             return p2p.implants.PRIMA75()
+    if cfg['implant'] == 'PRIMA55':
+        if cfg['implant_args'] is not None:
+            return p2p.implants.PRIMA55(**cfg['implant_args'])
+        else:
+            return p2p.implants.PRIMA55()
+    if cfg['implant'] == 'PRIMA40':
+        if cfg['implant_args'] is not None:
+            return p2p.implants.PRIMA40(**cfg['implant_args'])
+        else:
+            return p2p.implants.PRIMA40()
+    if cfg['implant'] == 'PRIMA':
+        if cfg['implant_args'] is not None:
+            return p2p.implants.PRIMA(**cfg['implant_args'])
+        else:
+            return p2p.implants.PRIMA()
+    if cfg['implant'] == 'ArgusII':
+        if cfg['implant_args'] is not None:
+            return p2p.implants.ArgusII(**cfg['implant_args'])
+        else:
+            return p2p.implants.ArgusII()
     else:
         raise NotImplementedError
 
