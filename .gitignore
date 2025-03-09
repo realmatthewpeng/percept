@@ -5,3 +5,4 @@ debug.log
 Out
 __pycache__
 axons.pickle
+.vscode/

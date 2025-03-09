@@ -14,11 +14,16 @@ def main(args):
 
     implant = utils.get_implant(cfg['phosphene_generator'])
     logging.debug(implant)
+
+    image_preprocessor = None
+    if (('image_preprocessor' in cfg) and (cfg['image_preprocessor'] is not None)):
+        image_preprocessor = utils.get_image_preprocessor(cfg['image_preprocessor'])
+    logging.debug(image_preprocessor)
     
     if (('pretrained_classifier' in cfg) and (cfg['pretrained_classifier'] is not None)):
         _, _, pre_test_images, pre_test_labels = utils.get_dataset(cfg['phosphene_generator'], test_only=True)
 
-        pgen.generate_percept([], [], pre_test_images, pre_test_labels, implant, model)
+        pgen.generate_percept([], [], pre_test_images, pre_test_labels, implant, model, image_preprocessor)
 
         _, _, post_test_images, post_test_labels = utils.get_processed_dataset(test_only=True)
 
@@ -29,7 +34,7 @@ def main(args):
     else:
         pre_train_images, pre_train_labels, pre_test_images, pre_test_labels = utils.get_dataset(cfg['phosphene_generator'])
 
-        pgen.generate_percept(pre_train_images, pre_train_labels, pre_test_images, pre_test_labels, implant, model)
+        pgen.generate_percept(pre_train_images, pre_train_labels, pre_test_images, pre_test_labels, implant, model, image_preprocessor)
 
         classifier = utils.get_classifier(cfg['classifier_evaluator'])
         logging.debug(classifier)

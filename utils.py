@@ -6,12 +6,12 @@ import pandas as pd
 import pulse2percept as p2p
 import yaml
 from PIL import Image
-
 from tensorflow.keras.layers import Conv2D, Dense, Flatten, MaxPooling2D
-from tensorflow.keras.models import load_model
-from tensorflow.keras.models import Sequential
+from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.utils import to_categorical
+
+import image_preprocessor as ip
 
 
 def load_config(yaml_file):
@@ -184,3 +184,9 @@ def get_trained_classifier(cfg):
 def get_pretrained_classifier(path):
     trained_model = load_model(path)
     return trained_model
+
+def get_image_preprocessor(cfg):
+    if cfg is not None:
+        return ip.ImagePreprocessor(**cfg)
+    else:
+        return None

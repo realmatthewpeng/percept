@@ -7,10 +7,12 @@ import numpy as np
 import pandas as pd
 import pulse2percept as p2p
 from PIL import Image
+import image_preprocessor as ip
 
 logging.getLogger("PIL.PngImagePlugin").setLevel(logging.CRITICAL + 1)
 
-def generate_percept(train_images: list, train_labels: list, test_images: list, test_labels: list, implant: p2p.implants.ProsthesisSystem, model: p2p.models.Model):
+def generate_percept(train_images: list, train_labels: list, test_images: list, test_labels: list, 
+                     implant: p2p.implants.ProsthesisSystem, model: p2p.models.Model, image_preprocessor: ip.ImagePreprocessor = None):
 
     if not os.path.exists("Out/"):
         os.makedirs("Out/")
@@ -22,6 +24,9 @@ def generate_percept(train_images: list, train_labels: list, test_images: list, 
     for i in range(len(train_images)):
         if i % 1000 == 0: logging.debug(f"processing train image {i}")
         stim = p2p.stimuli.ImageStimulus(train_images[i])
+
+        if image_preprocessor is not None:
+            stim = image_preprocessor.process_image(stim)
 
         implant.stim = stim.resize(implant.shape)
         percept = model.predict_percept(implant)
@@ -38,6 +43,9 @@ def generate_percept(train_images: list, train_labels: list, test_images: list, 
     for i in range(len(test_images)):
         if i % 1000 == 0: logging.debug(f"processing test image {i}")
         stim = p2p.stimuli.ImageStimulus(test_images[i])
+
+        if image_preprocessor is not None:
+            stim = image_preprocessor.process_image(stim)
 
         implant.stim = stim.resize(implant.shape)
         percept = model.predict_percept(implant)
