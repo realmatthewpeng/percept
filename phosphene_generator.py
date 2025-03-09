@@ -29,9 +29,9 @@ def generate_percept(train_images: list, train_labels: list, test_images: list, 
         frame = percept.max(axis='frames')
         train_processed.append(frame)
 
-    np.savez_compressed("Out/traindata.npz", data=train_processed)
-    np.savez_compressed("Out/trainlabels.npz", data=train_labels)
-
+    if len(train_processed) != 0:
+        np.savez_compressed("Out/traindata.npz", data=train_processed)
+        np.savez_compressed("Out/trainlabels.npz", data=train_labels)
 
     test_processed = []
 
@@ -45,8 +45,9 @@ def generate_percept(train_images: list, train_labels: list, test_images: list, 
         frame = percept.max(axis='frames')
         test_processed.append(frame)
 
-    np.savez_compressed("Out/testdata.npz", data=test_processed)
-    np.savez_compressed("Out/testlabels.npz", data=test_labels)
+    if len(test_processed) != 0:
+        np.savez_compressed("Out/testdata.npz", data=test_processed)
+        np.savez_compressed("Out/testlabels.npz", data=test_labels)
 
 def main():
     start_time = time.time()

@@ -45,26 +45,27 @@ def get_implant(cfg):
     else:
         raise NotImplementedError
 
-def get_dataset(cfg):
+def get_dataset(cfg, test_only = False):
     if cfg['dataset'] == 'MNIST':
-        return get_MNIST_dataset()
+        return get_MNIST_dataset(test_only)
     elif cfg['dataset'] == 'Fashion':
-        return get_Fashion_dataset()
+        return get_Fashion_dataset(test_only)
     else:
         raise NotImplementedError
     
-def get_MNIST_dataset():
-    train_df = pd.read_parquet("datasets/MNIST/train.parquet")
+def get_MNIST_dataset(test_only = False):
     train_images = []
     train_labels = []
 
-    for i in range(train_df.shape[0]):
-        if i % 1000 == 0: logging.debug(f"creating train image {i}")
-        image = Image.open(io.BytesIO(train_df["image"].iloc[i]['bytes']))
-        train_labels.append(train_df["label"].iloc[i])
-        img_array = np.array(image)
-        train_images.append(img_array)
-    logging.debug(f"total train images: {len(train_images)}")
+    if (not test_only):
+        train_df = pd.read_parquet("datasets/MNIST/train.parquet")
+        for i in range(train_df.shape[0]):
+            if i % 1000 == 0: logging.debug(f"creating train image {i}")
+            image = Image.open(io.BytesIO(train_df["image"].iloc[i]['bytes']))
+            train_labels.append(train_df["label"].iloc[i])
+            img_array = np.array(image)
+            train_images.append(img_array)
+        logging.debug(f"total train images: {len(train_images)}")
 
     test_df = pd.read_parquet("datasets/MNIST/test.parquet")
     test_images = []
@@ -80,18 +81,19 @@ def get_MNIST_dataset():
 
     return train_images, train_labels, test_images, test_labels
 
-def get_Fashion_dataset():
-    train_df = pd.read_parquet("datasets/FashionMNIST/train.parquet")
+def get_Fashion_dataset(test_only = False):
     train_images = []
     train_labels = []
 
-    for i in range(train_df.shape[0]):
-        if i % 1000 == 0: logging.debug(f"creating train image {i}")
-        image = Image.open(io.BytesIO(train_df["image"].iloc[i]['bytes']))
-        train_labels.append(train_df["label"].iloc[i])
-        img_array = np.array(image)
-        train_images.append(img_array)
-    logging.debug(f"total train images: {len(train_images)}")
+    if (not test_only):
+        train_df = pd.read_parquet("datasets/FashionMNIST/train.parquet")
+        for i in range(train_df.shape[0]):
+            if i % 1000 == 0: logging.debug(f"creating train image {i}")
+            image = Image.open(io.BytesIO(train_df["image"].iloc[i]['bytes']))
+            train_labels.append(train_df["label"].iloc[i])
+            img_array = np.array(image)
+            train_images.append(img_array)
+        logging.debug(f"total train images: {len(train_images)}")
 
     test_df = pd.read_parquet("datasets/FashionMNIST/test.parquet")
     test_images = []
@@ -128,15 +130,18 @@ def get_basic_cnn_classifier():
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-def get_processed_dataset():
-    X = np.load('Out/traindata.npz')
-    Y = np.load('Out/trainlabels.npz')
-    trainX = X['data']
-    trainY = Y['data']
-    # reshape dataset to have a single channel
-    trainX = trainX.reshape((trainX.shape[0], 28, 28, 1))
-    # one hot encode target values
-    trainY = to_categorical(trainY)
+def get_processed_dataset(test_only = False):
+    trainX = []
+    trainY = []
+    if (not test_only):
+        X = np.load('Out/traindata.npz')
+        Y = np.load('Out/trainlabels.npz')
+        trainX = X['data']
+        trainY = Y['data']
+        # reshape dataset to have a single channel
+        trainX = trainX.reshape((trainX.shape[0], 28, 28, 1))
+        # one hot encode target values
+        trainY = to_categorical(trainY)
 
     X = np.load('Out/testdata.npz')
     Y = np.load('Out/testlabels.npz')
@@ -149,9 +154,13 @@ def get_processed_dataset():
 
     return trainX, trainY, testX, testY
 
-def get_trained_classifer(cfg):
+def get_trained_classifier(cfg):
     if cfg['classifier'] == 'basic_cnn':
         trained_model = load_model('Out/final_model.h5')
         return trained_model
     else:
         raise NotImplementedError
+    
+def get_pretrained_classifier(path):
+    trained_model = load_model(path)
+    return trained_model

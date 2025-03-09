@@ -14,21 +14,33 @@ def main(args):
 
     implant = utils.get_implant(cfg['phosphene_generator'])
     logging.debug(implant)
+    
+    if (('pretrained_classifier' in cfg) and (cfg['pretrained_classifier'] is not None)):
+        _, _, pre_test_images, pre_test_labels = utils.get_dataset(cfg['phosphene_generator'], test_only=True)
 
-    pre_train_images, pre_train_labels, pre_test_images, pre_test_labels = utils.get_dataset(cfg['phosphene_generator'])
+        pgen.generate_percept([], [], pre_test_images, pre_test_labels, implant, model)
 
-    pgen.generate_percept(pre_train_images, pre_train_labels, pre_test_images, pre_test_labels, implant, model)
+        _, _, post_test_images, post_test_labels = utils.get_processed_dataset(test_only=True)
 
-    classifier = utils.get_classifier(cfg['classifier_evaluator'])
-    logging.debug(classifier)
+        trained_classifier = utils.get_pretrained_classifier(cfg['pretrained_classifier'])
 
-    post_train_images, post_train_labels, post_test_images, post_test_labels = utils.get_processed_dataset()
+        ceval.eval_model(trained_classifier, post_test_images, post_test_labels)
 
-    ceval.train_model(classifier, post_train_images, post_train_labels)
+    else:
+        pre_train_images, pre_train_labels, pre_test_images, pre_test_labels = utils.get_dataset(cfg['phosphene_generator'])
 
-    trained_classifier = utils.get_trained_classifer(cfg['classifier_evaluator'])
+        pgen.generate_percept(pre_train_images, pre_train_labels, pre_test_images, pre_test_labels, implant, model)
 
-    ceval.eval_model(trained_classifier, post_test_images, post_test_labels)
+        classifier = utils.get_classifier(cfg['classifier_evaluator'])
+        logging.debug(classifier)
+
+        post_train_images, post_train_labels, post_test_images, post_test_labels = utils.get_processed_dataset()
+
+        ceval.train_model(classifier, post_train_images, post_train_labels)
+
+        trained_classifier = utils.get_trained_classifier(cfg['classifier_evaluator'])
+
+        ceval.eval_model(trained_classifier, post_test_images, post_test_labels)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
