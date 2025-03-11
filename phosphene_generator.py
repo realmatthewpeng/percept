@@ -6,7 +6,9 @@ import time
 import numpy as np
 import pandas as pd
 import pulse2percept as p2p
+import torch
 from PIL import Image
+
 import image_preprocessor as ip
 
 logging.getLogger("PIL.PngImagePlugin").setLevel(logging.CRITICAL + 1)
@@ -32,6 +34,8 @@ def generate_percept(train_images: list, train_labels: list, test_images: list, 
         percept = model.predict_percept(implant)
 
         frame = percept.max(axis='frames')
+        # Normalize to [0, 1]
+        frame = (frame - np.min(frame)) / (np.max(frame) - np.min(frame))
         train_processed.append(frame)
 
     if len(train_processed) != 0:
@@ -42,6 +46,10 @@ def generate_percept(train_images: list, train_labels: list, test_images: list, 
 
     for i in range(len(test_images)):
         if i % 1000 == 0: logging.debug(f"processing test image {i}")
+
+        if type(test_images[i]) == torch.Tensor:
+            test_images[i] = test_images[i].numpy().transpose((1, 2, 0))
+
         stim = p2p.stimuli.ImageStimulus(test_images[i])
 
         if image_preprocessor is not None:
@@ -51,11 +59,15 @@ def generate_percept(train_images: list, train_labels: list, test_images: list, 
         percept = model.predict_percept(implant)
 
         frame = percept.max(axis='frames')
+        # Normalize to [0, 1]
+        frame = (frame - np.min(frame)) / (np.max(frame) - np.min(frame))
         test_processed.append(frame)
 
     if len(test_processed) != 0:
         np.savez_compressed("Out/testdata.npz", data=test_processed)
         np.savez_compressed("Out/testlabels.npz", data=test_labels)
+
+    return test_processed[0].shape[0], test_processed[0].shape[1]
 
 def main():
     start_time = time.time()

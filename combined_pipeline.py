@@ -30,9 +30,9 @@ def main(args):
     if (('pretrained_classifier' in cfg) and (cfg['pretrained_classifier'] is not None)):
         _, _, pre_test_images, pre_test_labels = utils.get_dataset(cfg['phosphene_generator'], test_only=True)
 
-        pgen.generate_percept([], [], pre_test_images, pre_test_labels, implant, model, image_preprocessor)
+        xdim, ydim = pgen.generate_percept([], [], pre_test_images, pre_test_labels, implant, model, image_preprocessor)
 
-        _, _, post_test_images, post_test_labels = utils.get_processed_dataset(test_only=True)
+        _, _, post_test_images, post_test_labels = utils.get_processed_dataset(test_only=True, xdim=xdim, ydim=ydim)
 
         trained_classifier = utils.get_pretrained_classifier(cfg['pretrained_classifier'])
 
@@ -41,12 +41,12 @@ def main(args):
     else:
         pre_train_images, pre_train_labels, pre_test_images, pre_test_labels = utils.get_dataset(cfg['phosphene_generator'])
 
-        pgen.generate_percept(pre_train_images, pre_train_labels, pre_test_images, pre_test_labels, implant, model, image_preprocessor)
+        xdim, ydim = pgen.generate_percept(pre_train_images, pre_train_labels, pre_test_images, pre_test_labels, implant, model, image_preprocessor)
 
         classifier = utils.get_classifier(cfg['classifier_evaluator'])
         logging.debug(classifier)
 
-        post_train_images, post_train_labels, post_test_images, post_test_labels = utils.get_processed_dataset()
+        post_train_images, post_train_labels, post_test_images, post_test_labels = utils.get_processed_dataset(xdim=xdim, ydim=ydim)
 
         ceval.train_model(classifier, post_train_images, post_train_labels)
 

@@ -1,18 +1,15 @@
 phosphene_generator:
   percept_model: scoreboard
   percept_model_args:
-    xrange: [-2, 2]
-    yrange: [-2, 2]
-    xystep: 0.15
-    rho: 75
-  implant: PRIMA75
+    xrange: [-5, 5]
+    yrange: [-5, 5]
+    xystep: 0.32
+    rho: 70
+  implant: AlphaAMS
   implant_args:
-    z: 0
-  dataset: MNIST
+    x: 0
+  dataset: cifar10
 
-classifier_evaluator:
-  classifier: basic_cnn
-
-pretrained_classifier: Out/initial_cnn_model_mnist.h5
+pretrained_classifier: resnet56
 image_preprocessor:
   doRGBtoGray: True

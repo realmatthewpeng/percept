@@ -4,14 +4,17 @@ import logging
 import numpy as np
 import pandas as pd
 import pulse2percept as p2p
+import torchvision
 import yaml
 from PIL import Image
 from tensorflow.keras.layers import Conv2D, Dense, Flatten, MaxPooling2D
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.utils import to_categorical
+from torchvision import transforms
 
 import image_preprocessor as ip
+from models.resnet56 import resnet56
 
 
 def load_config(yaml_file):
@@ -62,6 +65,11 @@ def get_implant(cfg):
             return p2p.implants.ArgusII(**cfg['implant_args'])
         else:
             return p2p.implants.ArgusII()
+    if cfg['implant'] == 'AlphaAMS':
+        if cfg['implant_args'] is not None:
+            return p2p.implants.AlphaAMS(**cfg['implant_args'])
+        else:
+            return p2p.implants.AlphaAMS()
     else:
         raise NotImplementedError
 
@@ -70,8 +78,29 @@ def get_dataset(cfg, test_only = False):
         return get_MNIST_dataset(test_only)
     elif cfg['dataset'] == 'Fashion':
         return get_Fashion_dataset(test_only)
+    elif cfg['dataset'] == 'cifar10':
+        if not test_only:
+            raise NotImplementedError
+        return get_cifar10_dataset()
     else:
         raise NotImplementedError
+    
+def get_cifar10_dataset():
+    transform = transforms.Compose([
+        transforms.ToTensor()
+    ])  
+    testset = torchvision.datasets.CIFAR10(root='./datasets/cifar10/', train=False, download=True, transform=transform)
+
+    test_images = []
+    test_labels = []
+
+    for i in range(1000):
+        if i % 100 == 0: logging.debug(f"creating test image {i}")
+        image, label = testset[i]
+        test_images.append(image)
+        test_labels.append(label)
+
+    return [], [], test_images, test_labels
     
 def get_MNIST_dataset(test_only = False):
     train_images = []
@@ -150,7 +179,7 @@ def get_basic_cnn_classifier():
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-def get_processed_dataset(test_only = False, test_X_path = 'Out/testdata.npz', test_Y_path = 'Out/testlabels.npz'):
+def get_processed_dataset(test_only = False, test_X_path = 'Out/testdata.npz', test_Y_path = 'Out/testlabels.npz', xdim=28, ydim=28):
     trainX = []
     trainY = []
     if (not test_only):
@@ -159,7 +188,7 @@ def get_processed_dataset(test_only = False, test_X_path = 'Out/testdata.npz', t
         trainX = X['data']
         trainY = Y['data']
         # reshape dataset to have a single channel
-        trainX = trainX.reshape((trainX.shape[0], 28, 28, 1))
+        trainX = trainX.reshape((trainX.shape[0], xdim, ydim, 1))
         # one hot encode target values
         trainY = to_categorical(trainY)
 
@@ -168,7 +197,7 @@ def get_processed_dataset(test_only = False, test_X_path = 'Out/testdata.npz', t
     testX = X['data']
     testY = Y['data']
     # reshape dataset to have a single channel
-    testX = testX.reshape((testX.shape[0], 28, 28, 1))
+    testX = testX.reshape((testX.shape[0], xdim, ydim, 1))
     # one hot encode target values
     testY = to_categorical(testY)
 
@@ -182,7 +211,11 @@ def get_trained_classifier(cfg):
         raise NotImplementedError
     
 def get_pretrained_classifier(path):
+    if path == 'resnet56':
+        trained_model = resnet56()    
+        return trained_model
     trained_model = load_model(path)
+    trained_model.compile()
     return trained_model
 
 def get_image_preprocessor(cfg):
