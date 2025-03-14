@@ -25,6 +25,10 @@ def generate_percept(train_images: list, train_labels: list, test_images: list, 
 
     for i in range(len(train_images)):
         if i % 1000 == 0: logging.debug(f"processing train image {i}")
+
+        if type(train_images[i]) == torch.Tensor:
+            train_images[i] = train_images[i].numpy().transpose((1, 2, 0))
+
         stim = p2p.stimuli.ImageStimulus(train_images[i])
 
         if image_preprocessor is not None:

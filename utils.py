@@ -1,12 +1,10 @@
-import io
 import logging
+import pickle
 
 import numpy as np
-import pandas as pd
 import pulse2percept as p2p
 import torchvision
 import yaml
-from PIL import Image
 from tensorflow.keras.layers import Conv2D, Dense, Flatten, MaxPooling2D
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.optimizers import SGD
@@ -14,7 +12,8 @@ from tensorflow.keras.utils import to_categorical
 from torchvision import transforms
 
 import image_preprocessor as ip
-from models.resnet56 import resnet56
+from models.resnet import resnet56, resnet1202
+from models.vggnet import vggnet
 
 
 def load_config(yaml_file):
@@ -40,33 +39,34 @@ def get_percept_model(cfg):
         raise NotImplementedError
     
 def get_implant(cfg):
+    has_args = (('implant_args' in cfg) and (cfg['implant_args'] is not None))
     if cfg['implant'] == 'PRIMA75':
-        if cfg['implant_args'] is not None:
+        if has_args:
             return p2p.implants.PRIMA75(**cfg['implant_args'])
         else:
             return p2p.implants.PRIMA75()
     if cfg['implant'] == 'PRIMA55':
-        if cfg['implant_args'] is not None:
+        if has_args:
             return p2p.implants.PRIMA55(**cfg['implant_args'])
         else:
             return p2p.implants.PRIMA55()
     if cfg['implant'] == 'PRIMA40':
-        if cfg['implant_args'] is not None:
+        if has_args:
             return p2p.implants.PRIMA40(**cfg['implant_args'])
         else:
             return p2p.implants.PRIMA40()
     if cfg['implant'] == 'PRIMA':
-        if cfg['implant_args'] is not None:
+        if has_args:
             return p2p.implants.PRIMA(**cfg['implant_args'])
         else:
             return p2p.implants.PRIMA()
     if cfg['implant'] == 'ArgusII':
-        if cfg['implant_args'] is not None:
+        if has_args:
             return p2p.implants.ArgusII(**cfg['implant_args'])
         else:
             return p2p.implants.ArgusII()
     if cfg['implant'] == 'AlphaAMS':
-        if cfg['implant_args'] is not None:
+        if has_args:
             return p2p.implants.AlphaAMS(**cfg['implant_args'])
         else:
             return p2p.implants.AlphaAMS()
@@ -82,14 +82,37 @@ def get_dataset(cfg, test_only = False):
         if not test_only:
             raise NotImplementedError
         return get_cifar10_dataset()
+    elif cfg['dataset'] == 'cifar100':
+        if not test_only:
+            raise NotImplementedError
+        return get_cifar100_dataset()
+    elif cfg['dataset'] == 'EMNIST':
+        if not test_only:
+            raise NotImplementedError
+        return get_EMNIST_dataset()
     else:
         raise NotImplementedError
     
+def get_EMNIST_dataset():
+
+    with open('./datasets/EMNIST/emnist_test.pkl', 'rb') as file:
+        data = pickle.load(file)
+
+    test_images = []
+    test_labels = []
+
+    for i in range(1000):
+        if i % 100 == 0: logging.debug(f"creating test image {i}")
+        test_images.append(data['data'][i]/255)
+        test_labels.append(data['labels'][i])
+
+    return [], [], test_images, test_labels
+
 def get_cifar10_dataset():
     transform = transforms.Compose([
         transforms.ToTensor()
     ])  
-    testset = torchvision.datasets.CIFAR10(root='./datasets/cifar10/', train=False, download=True, transform=transform)
+    testset = torchvision.datasets.CIFAR10(root='./datasets/', train=False, download=True, transform=transform)
 
     test_images = []
     test_labels = []
@@ -101,60 +124,73 @@ def get_cifar10_dataset():
         test_labels.append(label)
 
     return [], [], test_images, test_labels
-    
+
+def get_cifar100_dataset():
+    transform = transforms.Compose([
+        transforms.ToTensor()
+    ])  
+    testset = torchvision.datasets.CIFAR100(root='./datasets/', train=False, download=True, transform=transform)
+
+    test_images = []
+    test_labels = []
+
+    for i in range(1000):
+        if i % 100 == 0: logging.debug(f"creating test image {i}")
+        image, label = testset[i]
+        test_images.append(image)
+        test_labels.append(label)
+
+    return [], [], test_images, test_labels
+
 def get_MNIST_dataset(test_only = False):
+    trainset = torchvision.datasets.MNIST(root='./datasets/', train=True, download=True)
+
     train_images = []
     train_labels = []
 
     if (not test_only):
-        train_df = pd.read_parquet("datasets/MNIST/train.parquet")
-        for i in range(train_df.shape[0]):
+        for i in range(len(trainset)):
             if i % 1000 == 0: logging.debug(f"creating train image {i}")
-            image = Image.open(io.BytesIO(train_df["image"].iloc[i]['bytes']))
-            train_labels.append(train_df["label"].iloc[i])
-            img_array = np.array(image)
-            train_images.append(img_array)
-        logging.debug(f"total train images: {len(train_images)}")
+            image, label = trainset[i]
+            train_images.append(np.array(image)/255)
+            train_labels.append(label)
 
-    test_df = pd.read_parquet("datasets/MNIST/test.parquet")
+    testset = torchvision.datasets.MNIST(root='./datasets/', train=False, download=True)
+
     test_images = []
     test_labels = []
 
-    for i in range(test_df.shape[0]):
+    for i in range(len(testset)):
         if i % 1000 == 0: logging.debug(f"creating test image {i}")
-        image = Image.open(io.BytesIO(test_df["image"].iloc[i]['bytes']))
-        test_labels.append(test_df["label"].iloc[i])
-        img_array = np.array(image)
-        test_images.append(img_array)
-    logging.debug(f"total test images: {len(test_images)}")
+        image, label = testset[i]
+        test_images.append(np.array(image)/255)
+        test_labels.append(label)
 
     return train_images, train_labels, test_images, test_labels
 
 def get_Fashion_dataset(test_only = False):
+    trainset = torchvision.datasets.FashionMNIST(root='./datasets/', train=True, download=True)
+
     train_images = []
     train_labels = []
 
     if (not test_only):
-        train_df = pd.read_parquet("datasets/FashionMNIST/train.parquet")
-        for i in range(train_df.shape[0]):
+        for i in range(len(trainset)):
             if i % 1000 == 0: logging.debug(f"creating train image {i}")
-            image = Image.open(io.BytesIO(train_df["image"].iloc[i]['bytes']))
-            train_labels.append(train_df["label"].iloc[i])
-            img_array = np.array(image)
-            train_images.append(img_array)
-        logging.debug(f"total train images: {len(train_images)}")
+            image, label = trainset[i]
+            train_images.append(np.array(image)/255)
+            train_labels.append(label)
 
-    test_df = pd.read_parquet("datasets/FashionMNIST/test.parquet")
+    testset = torchvision.datasets.FashionMNIST(root='./datasets/', train=False, download=True)
+
     test_images = []
     test_labels = []
 
-    for i in range(test_df.shape[0]):
+    for i in range(len(testset)):
         if i % 1000 == 0: logging.debug(f"creating test image {i}")
-        image = Image.open(io.BytesIO(test_df["image"].iloc[i]['bytes']))
-        test_labels.append(test_df["label"].iloc[i])
-        img_array = np.array(image)
-        test_images.append(img_array)
-    logging.debug(f"total test images: {len(test_images)}")
+        image, label = testset[i]
+        test_images.append(np.array(image)/255)
+        test_labels.append(label)
 
     return train_images, train_labels, test_images, test_labels
 
@@ -213,6 +249,12 @@ def get_trained_classifier(cfg):
 def get_pretrained_classifier(path):
     if path == 'resnet56':
         trained_model = resnet56()    
+        return trained_model
+    if path == 'resnet1202':
+        trained_model = resnet1202()    
+        return trained_model
+    if path == 'vggnet':
+        trained_model = vggnet()
         return trained_model
     trained_model = load_model(path)
     trained_model.compile()

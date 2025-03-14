@@ -8,9 +8,9 @@ import utils
 
 def main(args):
     if args.evaluate is not None:
-        classifier_path, dataset_X, dataset_Y = args.evaluate
+        classifier_path, dataset_X, dataset_Y, xdim, ydim = args.evaluate
         classifier = utils.get_pretrained_classifier(classifier_path)
-        _, _, test_images, test_labels = utils.get_processed_dataset(test_only=True, test_X_path=dataset_X, test_Y_path=dataset_Y)
+        _, _, test_images, test_labels = utils.get_processed_dataset(test_only=True, test_X_path=dataset_X, test_Y_path=dataset_Y, xdim=xdim, ydim=ydim)
         ceval.eval_model(classifier, test_images, test_labels)
         return
 
@@ -59,8 +59,9 @@ if __name__ == "__main__":
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-c", "--config", type=str, default=None,
                        help="config file (yaml) with the pipeline configurations: e.g. '_config.yaml' ")
-    group.add_argument("-e", "--evaluate", nargs=3, metavar=('classifier', 'dataX', 'dataY'), default=None,
-                       help="evaluation only mode for a pretrained classifier on a processed dataset. Provide the path to the classifier, dataX, and dataY files.")
+    group.add_argument("-e", "--evaluate", nargs=5, metavar=('classifier', 'dataX', 'dataY', 'xdim', 'ydim'), default=None,
+                       help="evaluation only mode for a pretrained classifier on a processed dataset. Provide the path to the classifier, dataX, and dataY files."
+                       " Also provide the dimensions of the processed dataset: xdim and ydim.")
 
     args = parser.parse_args()
     main(args)
