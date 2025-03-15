@@ -10,7 +10,7 @@ def main(args):
     if args.evaluate is not None:
         classifier_path, dataset_X, dataset_Y, xdim, ydim = args.evaluate
         classifier = utils.get_pretrained_classifier(classifier_path)
-        _, _, test_images, test_labels = utils.get_processed_dataset(test_only=True, test_X_path=dataset_X, test_Y_path=dataset_Y, xdim=xdim, ydim=ydim)
+        _, _, test_images, test_labels = utils.get_processed_dataset(test_only=True, test_X_path=dataset_X, test_Y_path=dataset_Y, xdim=int(xdim), ydim=int(ydim))
         ceval.eval_model(classifier, test_images, test_labels)
         return
 
