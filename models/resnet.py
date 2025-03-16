@@ -4,7 +4,6 @@ import torch.nn.functional as F
 import torch.nn.init as init
 import numpy as np
 import torchvision.transforms as transforms
-import logging
 
 
 def _weights_init(m):

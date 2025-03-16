@@ -1,15 +1,14 @@
 phosphene_generator:
   percept_model: axon
   percept_model_args:
-    xrange: [-2, 2]
-    yrange: [-2, 2]
-    xystep: 0.15
-    rho: 20
-    axlambda: 400
-  implant: PRIMA75
+    xrange: [-10, 10]
+    yrange: [-6, 6]
+    xystep: [0.73, 0.44]
+    rho: 300
+  implant: ArgusII
   implant_args:
     z: 0
-  dataset: MNIST
+  dataset: Fashion
 
 classifier_evaluator:
   classifier: basic_cnn

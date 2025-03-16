@@ -1,0 +1,15 @@
+phosphene_generator:
+  percept_model: scoreboard
+  percept_model_args:
+    xrange: [-5, 5]
+    yrange: [-5, 5]
+    xystep: 0.32
+    rho: 140
+  implant: AlphaAMS
+  implant_args:
+    x: 0
+  dataset: cifar10
+
+pretrained_classifier: resnet56
+image_preprocessor:
+  doRGBtoGray: True

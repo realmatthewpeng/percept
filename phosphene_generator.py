@@ -14,10 +14,14 @@ import image_preprocessor as ip
 logging.getLogger("PIL.PngImagePlugin").setLevel(logging.CRITICAL + 1)
 
 def generate_percept(train_images: list, train_labels: list, test_images: list, test_labels: list, 
-                     implant: p2p.implants.ProsthesisSystem, model: p2p.models.Model, image_preprocessor: ip.ImagePreprocessor = None):
+                     implant: p2p.implants.ProsthesisSystem, model: p2p.models.Model, image_preprocessor: ip.ImagePreprocessor = None,
+                     outdir = "test"):
 
     if not os.path.exists("Out/"):
         os.makedirs("Out/")
+
+    if not os.path.exists(f"Out/{outdir}"):
+        os.makedirs(f"Out/{outdir}")
 
     model.build()
 
@@ -43,13 +47,13 @@ def generate_percept(train_images: list, train_labels: list, test_images: list, 
         train_processed.append(frame)
 
     if len(train_processed) != 0:
-        np.savez_compressed("Out/traindata.npz", data=train_processed)
-        np.savez_compressed("Out/trainlabels.npz", data=train_labels)
+        np.savez_compressed(f"Out/{outdir}/traindata.npz", data=train_processed)
+        np.savez_compressed(f"Out/{outdir}/trainlabels.npz", data=train_labels)
 
     test_processed = []
 
     for i in range(len(test_images)):
-        if i % 1000 == 0: logging.debug(f"processing test image {i}")
+        if i % 100 == 0: logging.debug(f"processing test image {i}")
 
         if type(test_images[i]) == torch.Tensor:
             test_images[i] = test_images[i].numpy().transpose((1, 2, 0))
@@ -68,8 +72,8 @@ def generate_percept(train_images: list, train_labels: list, test_images: list, 
         test_processed.append(frame)
 
     if len(test_processed) != 0:
-        np.savez_compressed("Out/testdata.npz", data=test_processed)
-        np.savez_compressed("Out/testlabels.npz", data=test_labels)
+        np.savez_compressed(f"Out/{outdir}/testdata.npz", data=test_processed)
+        np.savez_compressed(f"Out/{outdir}/testlabels.npz", data=test_labels)
 
     return test_processed[0].shape[0], test_processed[0].shape[1]
 

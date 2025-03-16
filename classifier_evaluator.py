@@ -45,9 +45,9 @@ def define_basic_model():
 	model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
 	return model
  
-def train_model(model, trainX: np.ndarray, trainY: np.ndarray):
+def train_model(model, trainX: np.ndarray, trainY: np.ndarray, outdir = 'test'):
 	model.fit(trainX, trainY, epochs=10, batch_size=32, verbose=2)
-	model.save('Out/final_model.h5')
+	model.save(f'Out/{outdir}/final_model.h5')
 
 def eval_model(model, testX: np.ndarray, testY: np.ndarray):
 	_, acc = model.evaluate(testX, testY, verbose=1)

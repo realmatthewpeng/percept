@@ -14,6 +14,7 @@ from torchvision import transforms
 import image_preprocessor as ip
 from models.resnet import resnet56, resnet1202
 from models.vggnet import vggnet
+from models.resnet2 import resnet20
 
 
 def load_config(yaml_file):
@@ -24,12 +25,19 @@ def load_config(yaml_file):
 percept_model_argtypes = {
     'xrange': tuple,
     'yrange': tuple,
+    'xystep': tuple
 }
 
 def get_percept_model(cfg):
     for param, type in percept_model_argtypes.items():
         if param in cfg['percept_model_args'] and cfg['percept_model_args'][param] is not None:
-            cfg['percept_model_args'][param] = type(cfg['percept_model_args'][param])
+            if param == 'xystep':
+                try:
+                    cfg['percept_model_args'][param] = type(cfg['percept_model_args'][param])
+                except:
+                    pass
+            else:
+                cfg['percept_model_args'][param] = type(cfg['percept_model_args'][param])
 
     if cfg['percept_model'] == 'scoreboard':
         return p2p.models.ScoreboardModel(**cfg['percept_model_args'])
@@ -215,18 +223,21 @@ def get_basic_cnn_classifier():
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-def get_processed_dataset(test_only = False, test_X_path = 'Out/testdata.npz', test_Y_path = 'Out/testlabels.npz', xdim=28, ydim=28):
+def get_processed_dataset(test_only = False, test_X_path = 'Out/testdata.npz', test_Y_path = 'Out/testlabels.npz', xdim=28, ydim=28, outdir = 'test'):
     trainX = []
     trainY = []
     if (not test_only):
-        X = np.load('Out/traindata.npz')
-        Y = np.load('Out/trainlabels.npz')
+        X = np.load(f'Out/{outdir}/traindata.npz')
+        Y = np.load(f'Out/{outdir}/trainlabels.npz')
         trainX = X['data']
         trainY = Y['data']
         # reshape dataset to have a single channel
         trainX = trainX.reshape((trainX.shape[0], xdim, ydim, 1))
         # one hot encode target values
         trainY = to_categorical(trainY)
+
+    test_X_path = f'Out/{outdir}/testdata.npz'
+    test_Y_path = f'Out/{outdir}/testlabels.npz'
 
     X = np.load(test_X_path)
     Y = np.load(test_Y_path)
@@ -239,14 +250,17 @@ def get_processed_dataset(test_only = False, test_X_path = 'Out/testdata.npz', t
 
     return trainX, trainY, testX, testY
 
-def get_trained_classifier(cfg):
+def get_trained_classifier(cfg, outdir = 'test'):
     if cfg['classifier'] == 'basic_cnn':
-        trained_model = load_model('Out/final_model.h5')
+        trained_model = load_model(f'Out/{outdir}/final_model.h5')
         return trained_model
     else:
         raise NotImplementedError
     
 def get_pretrained_classifier(path):
+    if path == 'resnet20':
+        trained_model = resnet20()
+        return trained_model
     if path == 'resnet56':
         trained_model = resnet56()    
         return trained_model
