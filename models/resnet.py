@@ -115,7 +115,7 @@ class ResNet(nn.Module):
 
 def resnet56():
     model = ResNet(BasicBlock, [9, 9, 9])
-    state_dict = torch.load('model_weights/resnet56.th', map_location=torch.device('cpu'))
+    state_dict = torch.load('model_weights/cifar10_resnet56.th', map_location=torch.device('cpu'))
     state_dict = {key.replace('module.', ''): value for key, value in state_dict['state_dict'].items()}
     model.load_state_dict(state_dict)
     model.eval()
@@ -123,7 +123,7 @@ def resnet56():
 
 def resnet1202():
     model = ResNet(BasicBlock, [200, 200, 200])
-    state_dict = torch.load('model_weights/resnet1202.th', map_location=torch.device('cpu'))
+    state_dict = torch.load('model_weights/cifar10_resnet1202.th', map_location=torch.device('cpu'))
     state_dict = {key.replace('module.', ''): value for key, value in state_dict['state_dict'].items()}
     model.load_state_dict(state_dict)
     model.eval()

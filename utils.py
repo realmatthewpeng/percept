@@ -15,6 +15,8 @@ import image_preprocessor as ip
 from models.resnet import resnet56, resnet1202
 from models.vggnet import vggnet
 from models.resnet2 import resnet20
+from models.resnet_emnist import resnet_emnist
+from models.alexnet import alexnet
 
 
 def load_config(yaml_file):
@@ -109,7 +111,7 @@ def get_EMNIST_dataset():
     test_images = []
     test_labels = []
 
-    for i in range(1000):
+    for i in range(len(data['data'])):
         if i % 100 == 0: logging.debug(f"creating test image {i}")
         test_images.append(data['data'][i]/255)
         test_labels.append(data['labels'][i])
@@ -223,7 +225,7 @@ def get_basic_cnn_classifier():
     model.compile(optimizer=opt, loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-def get_processed_dataset(test_only = False, test_X_path = 'Out/testdata.npz', test_Y_path = 'Out/testlabels.npz', xdim=28, ydim=28, outdir = 'test'):
+def get_processed_dataset(test_only = False, test_X_path = '', test_Y_path = '', xdim=28, ydim=28, outdir = 'test'):
     trainX = []
     trainY = []
     if (not test_only):
@@ -236,8 +238,9 @@ def get_processed_dataset(test_only = False, test_X_path = 'Out/testdata.npz', t
         # one hot encode target values
         trainY = to_categorical(trainY)
 
-    test_X_path = f'Out/{outdir}/testdata.npz'
-    test_Y_path = f'Out/{outdir}/testlabels.npz'
+    if test_X_path == '':
+        test_X_path = f'Out/{outdir}/testdata.npz'
+        test_Y_path = f'Out/{outdir}/testlabels.npz'
 
     X = np.load(test_X_path)
     Y = np.load(test_Y_path)
@@ -269,6 +272,12 @@ def get_pretrained_classifier(path):
         return trained_model
     if path == 'vggnet':
         trained_model = vggnet()
+        return trained_model
+    if path == 'emnist_resnet':
+        trained_model = resnet_emnist()
+        return trained_model
+    if path == 'alexnet':
+        trained_model = alexnet()
         return trained_model
     trained_model = load_model(path)
     trained_model.compile()

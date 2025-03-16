@@ -10,6 +10,6 @@ phosphene_generator:
     x: 0
   dataset: cifar10
 
-pretrained_classifier: resnet56
+pretrained_classifier: resnet20
 image_preprocessor:
   doRGBtoGray: True

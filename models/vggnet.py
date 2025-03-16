@@ -101,7 +101,7 @@ class VGGNet(nn.Module):
 
 def vggnet():
 	model = VGGNet()
-	state_dict = torch.load('model_weights/vggnet_tuned.pth', map_location=torch.device('cpu'))
+	state_dict = torch.load('model_weights/emnist_vggnet_tuned.pth', map_location=torch.device('cpu'))
 	model.load_state_dict(state_dict)
 	model.eval()
 	return model

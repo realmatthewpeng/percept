@@ -1,0 +1,13 @@
+phosphene_generator:
+  percept_model: scoreboard
+  percept_model_args:
+    xrange: [-2, 2]
+    yrange: [-2, 2]
+    xystep: 0.15
+    rho: 75
+  implant: PRIMA75
+  implant_args:
+    z: 0
+  dataset: EMNIST
+
+pretrained_classifier: vggnet
